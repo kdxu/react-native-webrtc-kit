@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static WebRTCModule *sharedModule;
 
-@interface WebRTCModule ()
+@interface WebRTCModule () <RTCAudioSessionDelegate>
 
 // React Native の処理専用のスレッド。
 // 専用のスレッドを用意することで、メインスレッドで発生する例外に影響されなくなる。
@@ -45,7 +45,6 @@ static WebRTCModule *sharedModule;
         RTCInitializeSSL();
         RTCEnableMetrics();
         sharedModule = self;
-        
         RTCDefaultVideoEncoderFactory *encoderFactory =
         [[RTCDefaultVideoEncoderFactory alloc] init];
         RTCDefaultVideoDecoderFactory *decoderFactory =
@@ -61,6 +60,8 @@ static WebRTCModule *sharedModule;
         self.receiverDict = [NSMutableDictionary dictionary];
         self.transceiverDict = [NSMutableDictionary dictionary];
         self.portOverride = AVAudioSessionPortOverrideNone;
+        RTCAudioSession *session = [RTCAudioSession sharedInstance];
+        [session addDelegate:self];
         dispatch_queue_attr_t attributes =
         dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
                                                 QOS_CLASS_USER_INITIATED, -1);
@@ -268,21 +269,29 @@ static WebRTCModule *sharedModule;
                      previousRoute:(AVAudioSessionRouteDescription *)previousRoute{
     AVAudioSessionRouteDescription *route = [session currentRoute];
     BOOL isHeadPhone = NO;
-    AVAudioSessionPortDescription *output = route.outputs[0];
-    if([output portType] == AVAudioSessionPortHeadphones){
-        isHeadPhone = YES;
-    }
-    if([output portType] == AVAudioSessionPortBluetoothHFP){
-        isHeadPhone = YES;
-    }
-    if([output portType] == AVAudioSessionPortBluetoothLE){
-        isHeadPhone = YES;
-    }
-    if([output portType] == AVAudioSessionPortBluetoothA2DP){
-        isHeadPhone = YES;
-    }
-    if([output portType] == AVAudioSessionPortAirPlay){
-        isHeadPhone = YES;
+    for(AVAudioSessionPortDescription *output in route.outputs){
+        AVAudioSessionPort portType = [output portType];
+        if([portType isEqualToString:AVAudioSessionPortHeadphones]){
+            isHeadPhone = YES;
+            break;
+        }
+        
+        if([portType isEqualToString:AVAudioSessionPortBluetoothHFP]){
+            isHeadPhone = YES;
+            break;
+        }
+        if([portType isEqualToString:AVAudioSessionPortBluetoothLE]){
+            isHeadPhone = YES;
+            break;
+        }
+        if([portType isEqualToString:AVAudioSessionPortBluetoothA2DP]){
+            isHeadPhone = YES;
+            break;
+        }
+        if([portType isEqualToString:AVAudioSessionPortAirPlay]){
+            isHeadPhone = YES;
+            break;
+        }
     }
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"audioSessionDidChangeRoute"
                                                     body:@{@"isHeadphone":@(isHeadPhone)}];

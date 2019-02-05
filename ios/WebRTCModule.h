@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * JavaScript 側では value tag を指定することで
  * ネイティブ側のオブジェクトを操作できます。
  */
-@interface WebRTCModule : NSObject <RCTBridgeModule, RTCAudioSessionDelegate>
+@interface WebRTCModule : NSObject <RCTBridgeModule>
 
 @property (nonatomic) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, readonly) NSArray <RTCPeerConnection *> *peerConnections;
