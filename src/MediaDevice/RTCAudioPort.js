@@ -1,3 +1,4 @@
+import { DeviceEventEmitter } from 'react-native';
 import WebRTC from '../WebRTC';
 import logger from '../Util/RTCLogger';
 
@@ -37,5 +38,21 @@ export function getAudioPort(): Promise<RTCAudioPort> {
 export function setAudioPort(port: RTCAudioPort): Promise<void> {
   logger.log("# audio route change => ", port);
   return WebRTC.setAudioPort(port);
+}
+
+/*
+ * オーディオポートの変更に対するコールバックを追加します。
+ * @since 2.1.0
+ */
+export function addAudioPortChangeListener(callback: Function): void {
+  return DeviceEventEmitter.addListener('audioSessionDidChangeRoute', callback);
+}
+
+/*
+ * オーディオポートの変更に対するコールバックを削除します。
+ * @since 2.1.0
+ */
+export function removeAudioPortChangeListener(callback: Function): void {
+  DeviceEventEmitter.removeListener('audioSessionDidChangeRoute', callback);
 }
 

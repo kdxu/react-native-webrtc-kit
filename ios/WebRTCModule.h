@@ -1,6 +1,7 @@
 @import Foundation;
 
 #import <WebRTC/WebRTC.h>
+#import <WebRTC/RTCAudioSession.h>
 
 #if __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
@@ -25,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * JavaScript 側では value tag を指定することで
  * ネイティブ側のオブジェクトを操作できます。
  */
-@interface WebRTCModule : NSObject <RCTBridgeModule>
+@interface WebRTCModule : NSObject <RCTBridgeModule, RTCAudioSessionDelegate>
 
 @property (nonatomic) RTCPeerConnectionFactory *peerConnectionFactory;
 @property (nonatomic, readonly) NSArray <RTCPeerConnection *> *peerConnections;

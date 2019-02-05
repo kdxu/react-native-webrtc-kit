@@ -261,6 +261,33 @@ static WebRTCModule *sharedModule;
         [self.transceiverDict removeObjectForKey: key];
     });
 }
+#pragma mark - RTCAudioSessionDelegate
+
+- (void)audioSessionDidChangeRoute:(RTCAudioSession *)session
+                            reason:(AVAudioSessionRouteChangeReason)reason
+                     previousRoute:(AVAudioSessionRouteDescription *)previousRoute{
+    AVAudioSessionRouteDescription *route = [session currentRoute];
+    BOOL isHeadPhone = NO;
+    AVAudioSessionPortDescription *output = route.outputs[0];
+    if([output portType] == AVAudioSessionPortHeadphones){
+        isHeadPhone = YES;
+    }
+    if([output portType] == AVAudioSessionPortBluetoothHFP){
+        isHeadPhone = YES;
+    }
+    if([output portType] == AVAudioSessionPortBluetoothLE){
+        isHeadPhone = YES;
+    }
+    if([output portType] == AVAudioSessionPortBluetoothA2DP){
+        isHeadPhone = YES;
+    }
+    if([output portType] == AVAudioSessionPortAirPlay){
+        isHeadPhone = YES;
+    }
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"audioSessionDidChangeRoute"
+                                                    body:@{@"isHeadphone":@(isHeadPhone)}];
+    return;
+}
 
 #pragma mark - React Native Exports
 
