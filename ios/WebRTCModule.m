@@ -45,6 +45,7 @@ static WebRTCModule *sharedModule;
         RTCInitializeSSL();
         RTCEnableMetrics();
         sharedModule = self;
+
         RTCDefaultVideoEncoderFactory *encoderFactory =
         [[RTCDefaultVideoEncoderFactory alloc] init];
         RTCDefaultVideoDecoderFactory *decoderFactory =
