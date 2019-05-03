@@ -16,6 +16,10 @@ export type RTCAudioPort =
   | 'speaker'
   | 'unknown'
 
+export type RTCHeadPhoneInfo = {|
+ isHeadPhone: boolean
+|}
+
 /**
  * 音声の出力元を取得します。
  * 
@@ -56,3 +60,9 @@ export function removeAudioPortChangeListener(callback: Function): void {
   DeviceEventEmitter.removeListener('audioSessionDidChangeRoute', callback);
 }
 
+/**
+ * オーディオのポート情報を取得します。
+ */
+export function getHeadPhoneInfo(): Promise<RTCHeadPhoneInfo> {
+  return WebRTC.getHeadPhoneInfo();
+}

@@ -29,7 +29,8 @@ export {
   getAudioPort,
   setAudioPort,
   addAudioPortChangeListener,
-  removeAudioPortChangeListener
+  removeAudioPortChangeListener,
+  getHeadPhoneInfo
 } from './src/MediaDevice/RTCAudioPort';
 export { getUserMedia } from './src/MediaDevice/getUserMedia';
 export { stopUserMedia } from './src/MediaDevice/getUserMedia';

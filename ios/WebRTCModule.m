@@ -263,40 +263,46 @@ static WebRTCModule *sharedModule;
         [self.transceiverDict removeObjectForKey: key];
     });
 }
+
+- (BOOL) isHeadPhone: (RTCAudioSession*)session {
+   BOOL isHeadPhone = NO;
+   AVAudioSessionRouteDescription *route = [session currentRoute];
+   for(AVAudioSessionPortDescription *output in route.outputs){
+       AVAudioSessionPort portType = [output portType];
+       if([portType isEqualToString:AVAudioSessionPortHeadphones]){
+           isHeadPhone = YES;
+           break;
+       }
+
+       if([portType isEqualToString:AVAudioSessionPortBluetoothHFP]){
+           isHeadPhone = YES;
+           break;
+       }
+       if([portType isEqualToString:AVAudioSessionPortBluetoothLE]){
+           isHeadPhone = YES;
+           break;
+       }
+       if([portType isEqualToString:AVAudioSessionPortBluetoothA2DP]){
+           isHeadPhone = YES;
+           break;
+       }
+       if([portType isEqualToString:AVAudioSessionPortAirPlay]){
+           isHeadPhone = YES;
+           break;
+       }
+   }
+   return isHeadPhone;
+}
+
 #pragma mark - RTCAudioSessionDelegate
 
 - (void)audioSessionDidChangeRoute:(RTCAudioSession *)session
-                            reason:(AVAudioSessionRouteChangeReason)reason
-                     previousRoute:(AVAudioSessionRouteDescription *)previousRoute{
-    AVAudioSessionRouteDescription *route = [session currentRoute];
-    BOOL isHeadPhone = NO;
-    for(AVAudioSessionPortDescription *output in route.outputs){
-        AVAudioSessionPort portType = [output portType];
-        if([portType isEqualToString:AVAudioSessionPortHeadphones]){
-            isHeadPhone = YES;
-            break;
-        }
-        
-        if([portType isEqualToString:AVAudioSessionPortBluetoothHFP]){
-            isHeadPhone = YES;
-            break;
-        }
-        if([portType isEqualToString:AVAudioSessionPortBluetoothLE]){
-            isHeadPhone = YES;
-            break;
-        }
-        if([portType isEqualToString:AVAudioSessionPortBluetoothA2DP]){
-            isHeadPhone = YES;
-            break;
-        }
-        if([portType isEqualToString:AVAudioSessionPortAirPlay]){
-            isHeadPhone = YES;
-            break;
-        }
-    }
-    [self.bridge.eventDispatcher sendDeviceEventWithName:@"audioSessionDidChangeRoute"
-                                                    body:@{@"isHeadphone":@(isHeadPhone)}];
-    return;
+                           reason:(AVAudioSessionRouteChangeReason)reason
+                    previousRoute:(AVAudioSessionRouteDescription *)previousRoute{
+   BOOL isHeadPhone = [self isHeadPhone:session];
+   [self.bridge.eventDispatcher sendDeviceEventWithName:@"audioSessionDidChangeRoute"
+                                                   body:@{@"isHeadphone":@(isHeadPhone)}];
+   return;
 }
 
 #pragma mark - React Native Exports
@@ -392,6 +398,13 @@ RCT_EXPORT_METHOD(setAudioPort:(NSString *)port
                                  }];
 }
 
+// MARK: -getHeadPhoneInfo:resolver:rejecter:
+RCT_EXPORT_METHOD(getHeadPhoneInfo:(nonnull RCTPromiseResolveBlock)resolve
+                rejecter:(nonnull RCTPromiseRejectBlock)reject){
+   RTCAudioSession *session = [RTCAudioSession sharedInstance];
+   BOOL isHeadPhone = [self isHeadPhone:session];
+   resolve(@{@"isHeadPhone": @(isHeadPhone)});
+}
 
 @end
 
