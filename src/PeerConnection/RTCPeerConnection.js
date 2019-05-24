@@ -370,6 +370,9 @@ export default class RTCPeerConnection extends RTCPeerConnectionEventTarget {
       .then(() => {
         console.log("removeTrack: sender => ", sender);
         return;
+      }).catch((error) => {
+        console.warn("removeTrack: error => ", error);
+        return;
       });
   }
 
